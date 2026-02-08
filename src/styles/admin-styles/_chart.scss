@@ -1,0 +1,28 @@
+.chart-container {
+  background-color: black;
+  padding: 4rem;
+  overflow-y: auto;
+  color: white;
+  > h1 {
+    margin: 0 0 5rem 2rem;
+  }
+  > section {
+    width: 80%;
+    margin: 4rem auto;
+    background-color: black; // card-style dark
+     border-radius: 1rem;
+     padding: 20px;
+    > div {
+      max-width: 25rem;
+      margin: auto;
+      margin-top: 6rem;
+      margin-bottom: -1rem;
+    }
+
+    > h2 {
+      margin: 2rem 0;
+      text-align: center;
+      @include heading(2px);
+    }
+  }
+}
