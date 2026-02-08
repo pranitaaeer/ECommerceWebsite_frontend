@@ -1,0 +1,215 @@
+// Variables for easy branding
+$primary-color: #f06292; // Royal Blue
+$secondary-color: #f3f4f6; // Light Grey
+$user-msg-bg: #c2185b;
+$bot-msg-bg: #e5e7eb;
+$text-dark: #1f2937;
+$text-light: #ffffff;
+$shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+
+// Floating Toggle Button
+.chat-toggle {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: $primary-color;
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: $shadow;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+  z-index: 1000;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+// Main Container
+.chatbot-container {
+  position: fixed;
+  bottom: 95px;
+  right: 25px;
+  width: 350px;
+  height: 500px;
+  background: white;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: $shadow;
+  overflow: hidden;
+  z-index: 1001;
+  font-family: 'Inter', -apple-system, sans-serif;
+  animation: slideUp 0.3s ease-out;
+
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  // Header Section
+  .chat-header {
+    background: $primary-color;
+    padding: 16px;
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    // justify-content: space-between;
+  }
+
+  // Chat Window Area
+  .chat-window {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    overflow-x: hidden; // Horizontal scroll ko rokne ke liye
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scrollbar-gutter: stable; // Yeh sabse best solution hai (Content shift nahi hoga)
+
+    // Scrollbar styling (Custom & Thin)
+    &::-webkit-scrollbar {
+      width: 6px; 
+    }
+    &::-webkit-scrollbar-track {
+      background: transparent; 
+    }
+    &::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.1); // Ekdum halka color
+      border-radius: 10px;
+      
+      &:hover {
+        background: rgba(0, 0, 0, 0.2); 
+      }
+    }
+
+    // Firefox ke liye
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
+
+    .message-wrapper {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message {
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+
+      &.bot {
+        align-self: flex-start;
+        background: $bot-msg-bg;
+        color: $text-dark;
+        border-bottom-left-radius: 2px;
+      }
+
+      &.user {
+        align-self: flex-end;
+        background: $user-msg-bg;
+        color: $text-light;
+        border-bottom-right-radius: 2px;
+      }
+    }
+  }
+
+  // Order Selection Buttons
+  .order-options {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-left: 10px;
+
+    .order-btn {
+      background: #fff;
+      border: 1px solid $primary-color;
+      color: $primary-color;
+      padding: 8px 12px;
+      border-radius: 8px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        background: rgba($primary-color, 0.05);
+        transform: translateX(5px);
+      }
+    }
+  }
+
+  // Initial Quick Replies (Suggestions)
+  .quick-replies {
+    padding: 10px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    border-top: 1px solid #f0f0f0;
+
+    button {
+      background: $primary-color;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      color: white;
+      cursor: pointer;
+      &:hover {
+        background: #f06292;
+      }
+    }
+  }
+
+  // Input Box Area
+  .chat-input {
+    padding: 12px;
+    border-top: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    input {
+      flex: 1;
+      border: 1px solid #313131;
+      border-radius: 8px;
+      padding: 8px 12px;
+      outline: none;
+      font-size: 14px;
+
+      &:focus {
+        border-color: $primary-color;
+      }
+    }
+
+    button {
+      background: $primary-color;
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 5px;
+
+      &:disabled {
+        background-color: #787878;
+        color: #ccc;
+      }
+    }
+  }
+}

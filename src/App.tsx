@@ -11,7 +11,7 @@ import { getUser } from "./redux/api/userAPI";
 import { userExist, userNotExist } from "./redux/reducer/userReducer";
 import { RootState } from "./redux/store";
 import Footer from "./components/footer";
-
+import Chatbot from "./components/chatbot";
 const Home = lazy(() => import("./pages/home"));
 const Search = lazy(() => import("./pages/search"));
 const ProductDetails = lazy(() => import("./pages/product-details"));
@@ -76,6 +76,8 @@ const App = () => {
           <Route path="/search" element={<Search />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/cart" element={<Cart />} />
+          {/* <Route path="/chatbot" element={<Chatbot />} /> */}
+
           {/* Not logged In Route */}
           <Route
             path="/login"
@@ -140,6 +142,7 @@ const App = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
+      <Chatbot />
       <Footer />
       <Toaster position="bottom-center" />
     </Router>

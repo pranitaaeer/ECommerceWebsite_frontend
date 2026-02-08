@@ -12,7 +12,6 @@ import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
 import toast from "react-hot-toast";
 import { IoSearchSharp } from "react-icons/io5";
-import { GoCopilot } from "react-icons/go";
 interface PropsType {
   user: User | null;
 }
@@ -49,9 +48,7 @@ const Header = ({ user }: PropsType) => {
       <Link onClick={() => setIsOpen(false)} to={"/cart"}>
         <FaShoppingCart  size={25}/>
       </Link>
-      <Link onClick={() => setIsOpen(false)} to={"/chatbot"}>
-        <GoCopilot  size={26}/>
-      </Link>
+      
     </div>
 
       {user?._id ? (
