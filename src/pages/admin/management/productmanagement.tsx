@@ -51,7 +51,7 @@ const Productmanagement = () => {
     try {
       const formData = new FormData();
 
-      if (nameUpdate) formData.set("name", nameUpdate);
+      if (nameUpdate) formData.set("ProductName", nameUpdate);
       if (descriptionUpdate) formData.set("description", descriptionUpdate);
       if (priceUpdate) formData.set("price", priceUpdate.toString());
       if (stockUpdate !== undefined)
@@ -61,7 +61,7 @@ const Productmanagement = () => {
 
       if (photosFiles.file && photosFiles.file.length > 0) {
         photosFiles.file.forEach((file) => {
-          formData.append("photos", file);
+          formData.append("ProductImage", file);
         });
       }
 
