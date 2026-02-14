@@ -68,6 +68,10 @@ export type AllOrdersResponse = {
   success: boolean;
   orders: Order[];
 };
+export type cancelledOrderResponse={
+  success:boolean;
+  message:string;
+}
 export type OrderDetailsResponse = {
   success: boolean;
   order: Order;

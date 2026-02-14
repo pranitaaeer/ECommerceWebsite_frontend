@@ -144,7 +144,21 @@ const App = () => {
       </Suspense>
       <Chatbot />
       <Footer />
-      <Toaster position="bottom-center" />
+      <Toaster position="bottom-right" toastOptions={
+       {
+         style:{
+        width: '300px',
+        maxWidth: '90vw',
+        fontSize: '18px',
+        padding: '20px',
+        borderRadius: '12px',
+        background: '#fff',
+        color: '#000',
+        boxShadow: '0px 10px 30px rgba(0,0,0,0.2)',
+      }
+       }
+      }/>
+      
     </Router>
   );
 };

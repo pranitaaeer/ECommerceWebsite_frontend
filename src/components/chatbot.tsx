@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { GoCopilot } from "react-icons/go";
 import { FaArrowUp } from "react-icons/fa";
+import { useSelector } from "react-redux";
+import { RootState } from "../redux/store";
+import toast from "react-hot-toast";
+import { CustomError } from "../types/api-types";
+import { useMyOrdersQuery } from "../redux/api/orderAPI";
+import {Order} from "../types/types"
 interface Message {
   id: number;
   text: string;
@@ -8,16 +14,14 @@ interface Message {
   isOrderList?: boolean; // Naya flag orders dikhane ke liye
 }
 
-interface Order {
-  id: string;
-  item: string;
-  status: string;
-  deliveryDate: string;
-}
-let username = "pranita";
 const Chatbot: React.FC = () => {
+  const { user } = useSelector((state: RootState) => state.userReducer);
+  const { data, isError, error} = useMyOrdersQuery(
+  user?._id!,
+  { skip: !user }
+);
   const [messages, setMessages] = useState<Message[]>([
-    { id: 1, text: `hi ${username}! how can I help you?`, sender: 'bot' }
+    { id: 1, text: `hi ${user?.username}! how can I help you?`, sender: 'bot' }
   ]);
   const [input, setInput] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -29,23 +33,35 @@ const Chatbot: React.FC = () => {
   }, [messages]);
 
   // Dummy Backend Call (Isse real API se replace karna)
-  const fetchOrdersFromBackend = async () => {
-    // const response = await fetch('/api/my-orders');
-    // const data = await response.json();
-    return [
-      { id: 'ORD123', item: 'Nike Shoes', status: 'Shipped', deliveryDate: '12 Feb' },
-      { id: 'ORD456', item: 'iPhone Case', status: 'Delayed', deliveryDate: '15 Feb' }
-    ];
-  };
+  const fetchOrdersFromBackend = () => {
+  if (isError) {
+    const err = error as CustomError;
+    toast.error(err.data.message);
+    return [];
+  }
+
+  return data?.orders || [];
+};
+
 
   const handleOrderSelection = (order: Order) => {
-    const userChoice: Message = { id: Date.now(), text: `Checking status for ${order.item}`, sender: 'user' };
+    const userChoice: Message = { id: Date.now(), text: `Checking status for ${order.orderItems[0].ProductName}`, sender: 'user' };
     setMessages(prev => [...prev, userChoice]);
 
     setTimeout(() => {
+     let dayMessage = "";
+  if(order.status === "Shipped") {
+    dayMessage = "Expected delivery within 15 days.";
+  } else if(order.status === "Processing") {
+    dayMessage = "Expected delivery within 6 days.";
+  } else if(order.status === "Delivered") {
+    dayMessage = "Your order has been delivered.";
+  }else {
+    dayMessage = "your order not shipped yet.";
+  }
       const botReply: Message = { 
         id: Date.now() + 1, 
-        text: `Aapka order (${order.id}) abhi "${order.status}" state mein hai. Expected delivery: ${order.deliveryDate}.`, 
+        text: `Your order (${order.orderItems[0].ProductName}) is in "${order.status}" state. ${dayMessage}`,
         sender: 'bot' 
       };
       setMessages(prev => [...prev, botReply]);
@@ -63,8 +79,9 @@ const Chatbot: React.FC = () => {
       let botMsg: Message = { id: Date.now() + 1, text: "", sender: 'bot' };
 
       if (text.includes('status') || text.includes('delay')) {
-        const orders = await fetchOrdersFromBackend(); 
-        setUserOrders(orders);
+        const orders= await fetchOrdersFromBackend(); 
+        console.log("orders from btn:",orders)
+        setUserOrders(orders!);
         
         botMsg.text = "which order do you want to check?";
         botMsg.isOrderList = true; // Isse hum niche buttons dikhayenge
@@ -99,8 +116,8 @@ const Chatbot: React.FC = () => {
                 {m.isOrderList && m.id === messages[messages.length - 1].id && (
                   <div className="order-options">
                     {userOrders.map(order => (
-                      <button key={order.id} onClick={() => handleOrderSelection(order)} className="order-btn">
-                        📦 {order.item} ({order.id})
+                      <button key={order._id} onClick={() => handleOrderSelection(order)} className="order-btn">
+                        📦 {order.orderItems[0].ProductName}
                       </button>
                     ))}
                   </div>
