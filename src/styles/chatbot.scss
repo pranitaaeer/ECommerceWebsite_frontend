@@ -63,7 +63,6 @@ $shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)
     display: flex;
     align-items: center;
     gap: 5px;
-    // justify-content: space-between;
   }
 
   // Chat Window Area
@@ -71,14 +70,13 @@ $shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)
     flex: 1;
     padding: 15px;
     overflow-y: auto;
-    overflow-x: hidden; // Horizontal scroll ko rokne ke liye
+    overflow-x: hidden; 
     background: #ffffff;
     display: flex;
     flex-direction: column;
     gap: 12px;
-    scrollbar-gutter: stable; // Yeh sabse best solution hai (Content shift nahi hoga)
+    scrollbar-gutter: stable;
 
-    // Scrollbar styling (Custom & Thin)
     &::-webkit-scrollbar {
       width: 6px; 
     }
@@ -86,7 +84,7 @@ $shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)
       background: transparent; 
     }
     &::-webkit-scrollbar-thumb {
-      background: rgba(0, 0, 0, 0.1); // Ekdum halka color
+      background: rgba(0, 0, 0, 0.1); 
       border-radius: 10px;
       
       &:hover {
@@ -94,13 +92,15 @@ $shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)
       }
     }
 
-    // Firefox ke liye
     scrollbar-width: thin;
     scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
 
     .message-wrapper {
       display: flex;
       flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      margin-top: 100px;
     }
 
     .message {
@@ -122,6 +122,26 @@ $shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)
         background: $user-msg-bg;
         color: $text-light;
         border-bottom-right-radius: 2px;
+      }
+    }
+
+    // Bot Greeting Section
+    .bot-greeting {
+      text-align: left;
+      padding: 1rem;
+
+      .greeting {
+        font-size: 1.8rem; // bigger
+        font-weight: 600;
+        color: $primary-color;
+      }
+
+      .prompt {
+        font-size: 1.5rem;
+        font-weight: 400;
+        text-align: center;
+        color: #aaa; // lighter prompt text
+        margin-top: 0.25rem;
       }
     }
   }
@@ -153,7 +173,7 @@ $shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)
     }
   }
 
-  // Initial Quick Replies (Suggestions)
+  // Quick Replies
   .quick-replies {
     padding: 10px;
     display: flex;

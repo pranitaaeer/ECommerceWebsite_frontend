@@ -154,3 +154,13 @@ export type SingleDiscountResponse = {
   success: boolean;
   coupon: CouponType;
 };
+
+export type ChatMessageResponse = {
+  success: boolean;
+  reply: string;
+  orders?: Order[];
+};
+export type ChatMessageRequest = {
+  userId: string;
+  message: string;
+}
