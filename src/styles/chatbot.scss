@@ -95,13 +95,14 @@ $shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)
     scrollbar-width: thin;
     scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
 
-    .message-wrapper {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      margin-top: 100px;
-    }
+   .message-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; // center nahi
+  align-items: flex-start; // messages left-align by default
+  margin-top: 0; // remove huge gap
+  gap: 6px; // thoda gap messages ke beech
+}
 
     .message {
       max-width: 80%;
@@ -129,6 +130,7 @@ $shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)
     .bot-greeting {
       text-align: left;
       padding: 1rem;
+      margin-bottom: 12px;
 
       .greeting {
         font-size: 1.8rem; // bigger
@@ -147,14 +149,14 @@ $shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)
   }
 
   // Order Selection Buttons
-  .order-options {
+  .order-options ,.product-list {
     margin-top: 8px;
     display: flex;
     flex-direction: column;
     gap: 6px;
     padding-left: 10px;
 
-    .order-btn {
+    .order-btn ,.product-btn{
       background: #fff;
       border: 1px solid $primary-color;
       color: $primary-color;
@@ -172,6 +174,7 @@ $shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)
       }
     }
   }
+  
 
   // Quick Replies
   .quick-replies {

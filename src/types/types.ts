@@ -151,3 +151,15 @@ export type CouponType = {
   amount: number;
   _id: string;
 };
+
+// types/types.ts
+export interface OrderItemType {
+  ProductName: string;
+  ProductImage?: string;
+  price: number;
+  quantity?: number;
+  productId?: string;
+}
+
+
+

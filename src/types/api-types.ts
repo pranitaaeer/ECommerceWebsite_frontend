@@ -159,6 +159,7 @@ export type ChatMessageResponse = {
   success: boolean;
   reply: string;
   orders?: Order[];
+  products?: Product[];
 };
 export type ChatMessageRequest = {
   userId: string;

@@ -4,40 +4,43 @@ import { FaArrowUp } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { useSendMessageMutation } from "../redux/api/chatAPI";
-import { Order } from "../types/types";
 
 interface Message {
   id: number;
   text: string;
   sender: "user" | "bot";
-  isOrderList?: boolean; // Agar bot orders bheje, buttons show karne ke liye
+  isOrderList?: boolean;
+  isProductList?: boolean;
+  ordersData?: any[]; // Dynamic data handling
+  productsData?: any[];
 }
 
 const Chatbot: React.FC = () => {
   const { user } = useSelector((state: RootState) => state.userReducer);
-  const [sendMessage, { isLoading }] = useSendMessageMutation();
+  const [sendMessage] = useSendMessageMutation();
 
   const [messages, setMessages] = useState<Message[]>([
-    { id: 1, text: `Hi ${user?.username}! How can I help you?`, sender: "bot" },
+    { id: 1, text: `Hi ${user?.username}! How can I help you today?`, sender: "bot" },
   ]);
+
   const [input, setInput] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const [userOrders, setUserOrders] = useState<Order[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to bottom on new message
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isLoading]);
+  }, [messages]);
 
-  // Handle user clicking an order
-  const handleOrderSelection = (order: Order) => {
-    const userChoice: Message = {
-      id: Date.now(),
-      text: `Checking status for ${order.orderItems[0].ProductName}`,
-      sender: "user",
+  const handleOrderSelection = (order: any) => {
+    // Backend 'item' ko UI ke liye 'ProductName' ki tarah treat karein
+    const itemName = order.orderItems ? order.orderItems[0].ProductName : order.item;
+    
+    const userMsg: Message = { 
+      id: Date.now(), 
+      text: `Checking status for ${itemName}`, 
+      sender: "user" 
     };
-    setMessages((prev) => [...prev, userChoice]);
+    setMessages((prev) => [...prev, userMsg]);
 
     setTimeout(() => {
       let dayMessage = "";
@@ -46,79 +49,66 @@ const Chatbot: React.FC = () => {
       else if (order.status === "Delivered") dayMessage = "Your order has been delivered.";
       else dayMessage = "Your order not shipped yet.";
 
-      const botReply: Message = {
-        id: Date.now() + 1,
-        text: `Your order (${order.orderItems[0].ProductName}) is in "${order.status}" state. ${dayMessage}`,
-        sender: "bot",
-      };
-      setMessages((prev) => [...prev, botReply]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          text: `Your order (${itemName}) is in "${order.status}" state. ${dayMessage}`,
+          sender: "bot",
+        },
+      ]);
     }, 800);
   };
 
-  // Handle sending a message
   const handleResponse = async (query: string) => {
-  if (!query.trim()) return;
+    if (!query.trim()) return;
 
-  // 1️⃣ Add user message
-  const userMsg: Message = { id: Date.now(), text: query, sender: "user" };
-  setMessages((prev) => [...prev, userMsg]);
-  setInput("");
+    const userMsg: Message = { id: Date.now(), text: query, sender: "user" };
+    setMessages((prev) => [...prev, userMsg]);
+    setInput("");
 
-  // 2️⃣ Check internet connection
-  if (!navigator.onLine) {
-    setMessages((prev) => [
-      ...prev,
-      { 
-        id: Date.now() + 1, 
-        text: "You're offline. Please check your internet connection.", 
-        sender: "bot" 
-      },
-    ]);
-    return;
-  }
+    const typingId = Date.now() + 2;
+    setMessages((prev) => [...prev, { id: typingId, text: "Bot is typing...", sender: "bot" }]);
 
-  // 3️⃣ Show typing indicator
-  const typingMsg: Message = { id: Date.now() + 2, text: "Bot is typing...", sender: "bot" };
-  setMessages((prev) => [...prev, typingMsg]);
+    try {
+      const res = await sendMessage({ userId: user!._id, message: query }).unwrap();
+      
+      // MAPPING: Backend response ko Frontend format mein dhaalna
+      const mappedOrders = res.orders?.map((o: any) => ({
+        ...o,
+        _id: o._id || Math.random().toString(),
+        orderItems: [{ ProductName: o.item }] // Backend 'item' -> UI 'ProductName'
+      })) || [];
 
-  try {
-    const payload = { userId: user!._id, message: query };
-    const res = await sendMessage(payload).unwrap();
+      const mappedProducts = res.products?.map((p: any) => ({
+        ...p,
+        _id: p._id || Math.random().toString(),
+        ProductName: p.name // Backend 'name' -> UI 'ProductName'
+      })) || [];
 
-    // 4️⃣ Remove typing indicator
-    setMessages((prev) => prev.filter((m) => m.id !== typingMsg.id));
-
-    // 5️⃣ Handle response
-    if (res.orders && res.orders.length > 0) {
-      setUserOrders(res.orders);
+      setMessages((prev) => {
+        const filtered = prev.filter((m) => m.id !== typingId);
+        return [
+          ...filtered,
+          {
+            id: Date.now() + 3,
+            text: res.reply,
+            sender: "bot",
+            isOrderList: mappedOrders.length > 0,
+            isProductList: mappedProducts.length > 0,
+            ordersData: mappedOrders,
+            productsData: mappedProducts,
+          },
+        ];
+      });
+    } catch (err) {
+      setMessages((prev) => prev.filter((m) => m.id !== typingId));
       setMessages((prev) => [
         ...prev,
-        { id: Date.now() + 3, text: res.reply, sender: "bot", isOrderList: true },
-      ]);
-    } else {
-      setMessages((prev) => [
-        ...prev,
-        { id: Date.now() + 3, text: res.reply, sender: "bot" },
+        { id: Date.now() + 4, text: "Oops! Something went wrong.", sender: "bot" },
       ]);
     }
-  } catch (err: any) {
-    console.error("Chatbot error:", err);
-
-    // 6️⃣ Remove typing indicator if error
-    setMessages((prev) => prev.filter((m) => m.id !== typingMsg.id));
-
-    // 7️⃣ Show friendly error message
-    setMessages((prev) => [
-      ...prev,
-      { 
-        id: Date.now() + 4, 
-        text: "Oops! I'm unable to fetch the response right now. Please try again later.", 
-        sender: "bot" 
-      },
-    ]);
-  }
-};
-
+  };
 
   return (
     <>
@@ -133,61 +123,65 @@ const Chatbot: React.FC = () => {
           </div>
 
           <div className="chat-window">
-              {messages.map((m) => (
-                <div key={m.id} className="message-wrapper">
+            {messages.map((m) => (
+              <div key={m.id} className="message-wrapper">
+                {/* 1. Bot Greeting Logic */}
                   {m.sender === "bot" && m.id === 1 ? (
-                    <div className="bot-greeting">
-                      <div className="greeting">✨ Hi {user?.username}</div>
-                      <div className="prompt">Where should we start?</div>
-                    </div>
+                    // Agar koi user message nahi hai, toh greeting dikhao
+                    messages.filter((msg) => msg.sender === "user").length === 0 ? (
+                      <div className="bot-greeting">
+                        <div className="greeting">✨ Hi {user?.username}</div>
+                        <div className="prompt">Where should we start?</div>
+                      </div>
+                    ) : (
+                      null
+                    )
                   ) : (
+                    // Baaki sab normal messages ke liye
                     <div className={`message ${m.sender}`}>{m.text}</div>
                   )}
 
-                  {/* Orders buttons */}
-                  {m.isOrderList && m.id === messages[messages.length - 1].id && (
-                    <div className="order-options">
-                      {userOrders.map((order) => (
-                        <button
-                          key={order._id}
-                          onClick={() => handleOrderSelection(order)}
-                          className="order-btn"
-                        >
-                          📦 {order.orderItems[0].ProductName}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-  ))}
-  <div ref={chatEndRef} />
-</div>
+                {/* --- Orders Section --- */}
+                {m.isOrderList && m.ordersData && (
+                  <div className="order-options">
+                    {m.ordersData.map((order) => (
+                      <button key={order._id} onClick={() => handleOrderSelection(order)} className="order-btn">
+                        <p>📦 <strong>{order.orderItems[0].ProductName}</strong></p>
+                        <p style={{color:"blue"}}>Status: ₹{order.status}</p>
+                      </button>
+                    ))}
+                  </div>
+                )}
 
+                {/* --- Products Section --- */}
+                {m.isProductList && m.productsData && (
+                  <div className="product-list">
+                    {m.productsData.map((product) => (
+                      <div key={product._id} className="product-btn">
+                        <p>🛍️ <strong >{product.ProductName}</strong></p>
+                        <p style={{color:"green"}}>Price: ₹{product.price}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+            <div ref={chatEndRef} />
+          </div>
 
-          {/* Quick Replies */}
-          {messages.length === 1 && (
             <div className="quick-replies">
-              <button onClick={() => handleResponse("please tell me order status?")}>
-                Order Status
-              </button>
-              <button onClick={() => handleResponse("why is my order delayed?")}>
-                Order Delay
-              </button>
-              <button onClick={() => handleResponse("i want to change my address")}>
-                Address change
-              </button>
-              <button onClick={() => handleResponse("i want to cancel my order")}>
-                Cancel Order
-              </button>
+              <button onClick={() => handleResponse("please tell me order status?")}>Order Status</button>
+              <button onClick={() => handleResponse("show me products")}>Show Products</button>
+              <button onClick={() => handleResponse("show me orders")}>Show Orders</button>
+              <button onClick={() => handleResponse("cancel my order")}>Cancel Order</button>
             </div>
-          )}
 
           <div className="chat-input">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleResponse(input)}
-              placeholder="Type..."
+              placeholder="Type your message..."
             />
             <button onClick={() => handleResponse(input)}>
               <FaArrowUp size={20} className="send" />
