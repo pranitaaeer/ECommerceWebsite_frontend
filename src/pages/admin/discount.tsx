@@ -1,4 +1,3 @@
-import { useFetchData } from "6pp";
 import { ReactElement, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { FaPlus } from "react-icons/fa6";
@@ -8,8 +7,10 @@ import { Column } from "react-table";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import TableHOC from "../../components/admin/TableHOC";
 import { Skeleton } from "../../components/loader";
-import { RootState, server } from "../../redux/store";
-import { AllDiscountResponse } from "../../types/api-types";
+import { RootState} from "../../redux/store";
+import { useGetAllcouponsQuery } from "../../redux/api/paymentAPI";
+import { CustomError } from "../../types/api-types";
+
 
 interface DataType {
   code: string;
@@ -40,16 +41,8 @@ const columns: Column<DataType>[] = [
 
 const Discount = () => {
   const { user } = useSelector((state: RootState) => state.userReducer);
-  console.log("userId:",user)
-  const {
-    data,
-    loading: isLoading,
-    error,
-  } = useFetchData<AllDiscountResponse>(
-    `${server}/api/v1/payment/coupon/all?id=${user?._id}`,
-    "discount-codes"
-  );
-
+  
+const {isLoading,data,isError,error}=useGetAllcouponsQuery({userId:user?._id!})
   const [rows, setRows] = useState<DataType[]>([]);
 
   const Table = TableHOC<DataType>(
@@ -60,7 +53,10 @@ const Discount = () => {
     rows.length > 6
   )();
 
-  if (error) toast.error(error);
+   if (isError) {
+    const err = error as CustomError;
+    toast.error(err.data.message);
+  }
 
   useEffect(() => {
     if (data)

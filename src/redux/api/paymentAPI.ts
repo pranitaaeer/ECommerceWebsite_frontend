@@ -8,7 +8,9 @@ import {
     updateCouponRequest,
     deleteCouponRequest,
     getCouponRequest,
-    SingleDiscountResponse
+    SingleDiscountResponse,
+    AllDiscountResponse,
+    allCouponsRequest
 } from "../../types/api-types";
 
 export const paymentApi = createApi({
@@ -16,6 +18,7 @@ export const paymentApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${import.meta.env.VITE_SERVER}/api/v1/payment/`,
   }),
+  tagTypes: ["coupons"],
   endpoints: (builder) => ({
     coupon:builder.mutation<CouponResponse,couponRequest>({
       query:({code,amount,userId})=>({
@@ -23,6 +26,7 @@ export const paymentApi = createApi({
         method:"POST",
         body:{code,amount}
       }),
+      invalidatesTags:["coupons"]
     }),
     applyDiscount:builder.mutation<ApplyDiscountResponse,ApplyDiscountRequest>({
       query:({coupon})=>({
@@ -35,19 +39,29 @@ export const paymentApi = createApi({
         url: `coupon/${id}?id=${userId}`,
         method:"PUT",
         body:{code,amount}
-      })
+      }),
+      invalidatesTags:["coupons"]
     }),
     deleteCoupon:builder.mutation<CouponResponse,deleteCouponRequest>({
       query:({id,userId})=>({
         url:`coupon/${id}?id=${userId}`,
         method:"DELETE"
-      })
+      }),
+      invalidatesTags:["coupons"]
     }),
     getCoupon:builder.query<SingleDiscountResponse,getCouponRequest>({
       query:({id,userId})=>({
         url:`coupon/${id}?id=${userId}`,
         method:"GET"
-      })
+      }),
+      providesTags:["coupons"]
+    }),
+    getAllcoupons:builder.query<AllDiscountResponse,allCouponsRequest>({
+      query:({userId})=>({
+        url:`coupon/all?id=${userId}`,
+        method:"GET",
+      }),
+      providesTags:["coupons"]
     })
   }),
 });
@@ -57,6 +71,7 @@ export const {
   useApplyDiscountMutation,
   useUpdateCouponMutation,
   useDeleteCouponMutation,
-  useGetCouponQuery
+  useGetCouponQuery,
+  useGetAllcouponsQuery
 }=paymentApi
 

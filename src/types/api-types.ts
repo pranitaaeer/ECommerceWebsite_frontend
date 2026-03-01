@@ -187,3 +187,6 @@ export type deleteCouponRequest={
 }
 export type updateCouponRequest=couponRequest  & {id:string}
 export type getCouponRequest=deleteCouponRequest
+export type allCouponsRequest={
+  userId:string;
+}
