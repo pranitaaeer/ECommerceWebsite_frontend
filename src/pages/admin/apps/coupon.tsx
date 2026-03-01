@@ -1,5 +1,11 @@
 import { FormEvent, useEffect, useState } from "react";
 import AdminSidebar from "../../../components/admin/AdminSidebar";
+import { toast } from "react-hot-toast";
+import { MessageResponse } from "../../../types/api-types";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/dist/query/react";
+import { useCouponMutation } from "../../../redux/api/paymentAPI";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/store";
 
 const allLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 const allNumbers = "1234567890";
@@ -12,9 +18,12 @@ const Coupon = () => {
   const [includeCharacters, setIncludeCharacters] = useState<boolean>(false);
   const [includeSymbols, setIncludeSymbols] = useState<boolean>(false);
   const [isCopied, setIsCopied] = useState<boolean>(false);
-
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [coupon, setCoupon] = useState<string>("");
+  const [trigger] = useCouponMutation();
 
+  const { user } = useSelector((state: RootState) => state.userReducer);
+   console.log("user:",user)
   const copyText = async (coupon: string) => {
     await window.navigator.clipboard.writeText(coupon);
     setIsCopied(true);
@@ -43,8 +52,34 @@ const Coupon = () => {
   };
 
   useEffect(() => {
-    setIsCopied(false);
-  }, [coupon]);
+  if (!coupon) return; // important guard
+
+  const createCoupon = async () => {
+    try {
+      setIsLoading(true);
+
+      const res = await trigger({ code: coupon, amount: 100 ,userId: user?._id!});
+      console.log("response:",res)
+      if ("data" in res) {
+        toast.success(res.data.message);
+      } else {
+        const error = res.error as FetchBaseQueryError;
+        console.log("err:",res.error)
+        const message = (error.data as MessageResponse)?.message || "Error";
+        toast.error(message);
+      }
+
+    } catch {
+      toast.error("Something went wrong");
+    } finally {
+      setIsLoading(false);
+      setIsCopied(false);
+    }
+  };
+
+  createCoupon();
+
+}, [coupon]);
 
   return (
     <div className="admin-container">
@@ -94,7 +129,7 @@ const Coupon = () => {
               />
               <span>Symbols</span>
             </fieldset>
-            <button type="submit">Generate</button>
+            <button type="submit">{isLoading ? "Generating..." : "Generate"}</button>
           </form>
 
           {coupon && (

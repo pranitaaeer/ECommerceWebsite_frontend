@@ -86,6 +86,7 @@ $color3: #c41d4a;
 @import "admin-styles/mediaquery";
 @import "chatbot";
 @import "orders";
+@import "admin-styles/coupon.scss";
 .container {
   max-width: 1367px;
   width: 100%;

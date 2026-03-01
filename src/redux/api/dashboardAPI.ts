@@ -28,8 +28,9 @@ export const dashboardApi = createApi({
       query: (id) => `line?id=${id}`,
       keepUnusedDataFor: 0,
     }),
+    
   }),
 });
 
-export const { useBarQuery, useStatsQuery, useLineQuery, usePieQuery } =
+export const { useBarQuery, useStatsQuery, useLineQuery, usePieQuery} =
   dashboardApi;

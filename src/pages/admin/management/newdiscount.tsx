@@ -1,61 +1,59 @@
-import axios from "axios";
 import { FormEvent, useState } from "react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import AdminSidebar from "../../../components/admin/AdminSidebar";
-import { RootState, server } from "../../../redux/store";
+import { RootState} from "../../../redux/store";
+import { useCouponMutation } from "../../../redux/api/paymentAPI";
+import { MessageResponse } from "../../../types/api-types";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/dist/query/react";
 
 const NewDiscount = () => {
   const { user } = useSelector((state: RootState) => state.userReducer);
   const navigate = useNavigate();
 
   const [btnLoading, setBtnLoading] = useState<boolean>(false);
-
+  const [trigger] = useCouponMutation();
+  
   const [code, setCode] = useState("");
   const [amount, setAmount] = useState(0);
 
   const submitHandler = async (e: FormEvent<HTMLFormElement>) => {
-    // submit handler
     e.preventDefault();
-
+    const createcoupon=async () => {
+      try {
     setBtnLoading(true);
-
-    try {
-      const { data } = await axios.post(
-        `${server}/api/v1/payment/coupon/new?id=${user?._id}`,
-        {
-          code,
-          amount,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        }
-      );
-
-      if (data.success) {
+      
+      const res = await trigger({ code, amount,userId:user?._id! })
+      if ("data" in res) {
         setAmount(0);
         setCode("");
-        toast.success(data.message);
+        toast.success(res.data.message);
         navigate("/admin/discount");
+      }else{
+        const error = res.error as FetchBaseQueryError;
+        console.log("err:",res.error)
+        const message = (error.data as MessageResponse)?.message || "Error";
+        toast.error(message);
       }
-    } catch (error) {
-      console.log(error);
+    } catch {
+       toast.error("Something went wrong");
     } finally {
       setBtnLoading(false);
     }
+    }
+    createcoupon()
   };
 
   return (
     <div className="admin-container">
       <AdminSidebar />
-      <main className="product-management">
+      <div className="main-div">
+        <h2>New Coupon</h2>
+        <main className="create-coupon">
         <article>
           <form onSubmit={submitHandler}>
-            <h2>New Coupon</h2>
+            
             <div>
               <label>Name</label>
               <input
@@ -69,7 +67,7 @@ const NewDiscount = () => {
             <div>
               <label>Price</label>
               <input
-                type="number"
+                type="text"
                 placeholder="Amount"
                 value={amount}
                 onChange={(e) => setAmount(Number(e.target.value))}
@@ -82,6 +80,7 @@ const NewDiscount = () => {
           </form>
         </article>
       </main>
+      </div>
     </div>
   );
 };

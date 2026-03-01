@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { VscError } from "react-icons/vsc";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,8 +10,9 @@ import {
   removeCartItem,
   saveCoupon,
 } from "../redux/reducer/cartReducer";
-import { RootState, server } from "../redux/store";
+import { RootState} from "../redux/store";
 import { CartItem } from "../types/types";
+import { useApplyDiscountMutation } from "../redux/api/paymentAPI";
 
 const Cart = () => {
   const { cartItems, subtotal, tax, total, shippingCharges, discount } =
@@ -21,6 +21,7 @@ const Cart = () => {
 
   const [couponCode, setCouponCode] = useState<string>("");
   const [isValidCouponCode, setIsValidCouponCode] = useState<boolean>(false);
+ const [applyDiscount] = useApplyDiscountMutation();
 
   const incrementHandler = (cartItem: CartItem) => {
     if (cartItem.quantity >= cartItem.stock) return;
@@ -28,7 +29,7 @@ const Cart = () => {
     dispatch(addToCart({ ...cartItem, quantity: cartItem.quantity + 1 }));
   };
   const decrementHandler = (cartItem: CartItem) => {
-    if (cartItem.quantity <= 1) return;
+    if (cartItem.quantity <= 0) return;
 
     dispatch(addToCart({ ...cartItem, quantity: cartItem.quantity - 1 }));
   };
@@ -36,29 +37,25 @@ const Cart = () => {
     dispatch(removeCartItem(productId));
   };
   useEffect(() => {
-    const { token: cancelToken, cancel } = axios.CancelToken.source();
 
-    const timeOutID = setTimeout(() => {
-      axios
-        .get(`${server}/api/v1/payment/discount?coupon=${couponCode}`, {
-          cancelToken,
-        })
-        .then((res) => {
-          dispatch(discountApplied(res.data.discount));
+    const applydiscountHandler=async (couponCode:string) => {
+        try {
+          const res=await applyDiscount({coupon:couponCode}).unwrap()
+          console.log("response:",res)
+          dispatch(discountApplied(res.discount));
           dispatch(saveCoupon(couponCode));
           setIsValidCouponCode(true);
           dispatch(calculatePrice());
-        })
-        .catch(() => {
+        } catch (error) {
           dispatch(discountApplied(0));
           setIsValidCouponCode(false);
           dispatch(calculatePrice());
-        });
-    }, 1000);
+        }
+    }
+    applydiscountHandler(couponCode)
+    
 
     return () => {
-      clearTimeout(timeOutID);
-      cancel();
       setIsValidCouponCode(false);
     };
   }, [couponCode]);
@@ -104,6 +101,7 @@ const Cart = () => {
 
         {couponCode &&
           (isValidCouponCode ? (
+            
             <span className="green">
               ₹{discount} off using the <code>{couponCode}</code>
             </span>

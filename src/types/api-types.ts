@@ -165,3 +165,25 @@ export type ChatMessageRequest = {
   userId: string;
   message: string;
 }
+export type couponRequest={
+  code:string;
+  amount:number;
+  userId: string;
+}
+export type CouponResponse={
+  success:boolean;
+  message:string;
+}
+export type ApplyDiscountResponse={
+  success:boolean;
+  discount:number;
+}
+export type ApplyDiscountRequest={
+  coupon:string;
+}
+export type deleteCouponRequest={
+  id:string;
+  userId:string;
+}
+export type updateCouponRequest=couponRequest  & {id:string}
+export type getCouponRequest=deleteCouponRequest
