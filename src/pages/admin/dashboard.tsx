@@ -36,9 +36,12 @@ const Dashboard = () => {
           <>
             <div className="bar">
               <BsSearch />
-              <input type="text" placeholder="Search for data, users, docs" />
+              <input type="text"
+               placeholder="Search for data, users, docs"
+               
+               />
               <FaRegBell />
-              <img src={user?.Avatar || userImg} alt="User" />
+              <img src={user?.Avatar || userImg}  />
             </div>
 
             <section className="widget-container">

@@ -31,7 +31,6 @@ const ProductDetails = () => {
   const { user } = useSelector((state: RootState) => state.userReducer);
 
   const { isLoading, isError, data } = useProductDetailsQuery(params.id!);
-  console.log("data from product details:",data)
   const reviewsResponse = useAllReviewsOfProductsQuery(params.id!);
   const [carouselOpen, setCarouselOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
@@ -43,14 +42,20 @@ const ProductDetails = () => {
   const [createReview] = useNewReviewMutation();
   const [deleteReview] = useDeleteReviewMutation();
 
-  const decrement = () => setQuantity((prev) => prev - 1);
+  const decrement = () => {
+    if(user?.role ==="admin") return;
+    setQuantity((prev) => prev - 1);
+  }
   const increment = () => {
+    if(user?.role ==="admin") return;
     if (data?.product?.stock === quantity)
       return toast.error(`${data?.product?.stock} available only`);
     setQuantity((prev) => prev + 1);
   };
 
   const addToCartHandler = (cartItem: CartItem) => {
+    if(user?.role ==="admin") return;
+
     if (cartItem.stock < 1) return toast.error("Out of Stock");
 
     dispatch(addToCart(cartItem));
@@ -189,14 +194,14 @@ const ProductDetails = () => {
       <section>
         <article>
           <h2>Reviews</h2>
-
-          {reviewsResponse.isLoading
+           {reviewsResponse.isLoading
             ? null
-            : user && (
-                <button onClick={showDialog}>
+            : user?.role === "user" && (
+                <button onClick={showDialog} >
                   <FiEdit />
                 </button>
-              )}
+            )}
+         
         </article>
         <div
           style={{

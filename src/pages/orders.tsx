@@ -122,7 +122,7 @@ const Orders = () => {
   )();
   return (
     <div className="container orders-page">
-      <h1>My Orders</h1>
+      <h1>{user?.role=="user" && "My Orders" }</h1>
       {isLoading ? (
         <Skeleton length={20} />
       ) : user?.role === "admin" ? (

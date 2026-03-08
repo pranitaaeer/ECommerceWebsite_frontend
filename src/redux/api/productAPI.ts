@@ -39,12 +39,13 @@ export const productAPI = createApi({
       SearchProductsRequest
     >({
       query: ({ price, search, sort, category, page }) => {
+        console.log("search:",search)
         let base = `all?search=${search}&page=${page}`;
 
         if (price) base += `&price=${price}`;
         if (sort) base += `&sort=${sort}`;
         if (category) base += `&category=${category}`;
-
+        console.log("base:",base)
         return base;
       },
       providesTags: ["product"],

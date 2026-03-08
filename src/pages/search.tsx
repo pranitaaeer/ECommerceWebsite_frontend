@@ -107,6 +107,7 @@ const Search = () => {
           placeholder="Search by name..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          style={{color:"white"}}
         />
 
         {productLoading ? (

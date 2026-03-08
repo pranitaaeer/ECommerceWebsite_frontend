@@ -36,9 +36,7 @@ const TransactionManagement = () => {
 
   const params = useParams();
   const navigate = useNavigate();
- console.log("orderId:",params._id)
   const { isLoading, data, isError } = useOrderDetailsQuery(params.id!);
-  console.log("data:",data)
   const {
     shippingInfo: { address, city, state, country, pinCode },
     orderItems,
@@ -124,19 +122,25 @@ const TransactionManagement = () => {
               <p>
                 Status:{" "}
                 <span
-                  className={
-                    status === "Delivered"
-                      ? "purple"
-                      : status === "Shipped"
-                      ? "green"
-                      : "red"
-                  }
+                  style={{
+                    color:
+                      status === "Delivered"
+                        ? "rgb(255, 140, 0)"
+                        : status === "Shipped"
+                        ? "hsl(110,80%,50%)"
+                        : "rgb(0,198,202)",
+                  }}
                 >
                   {status}
                 </span>
               </p>
               <button className="shipping-btn" onClick={updateHandler}
-              style={{backgroundColor:"#f06292", padding:"10px",marginTop:"5px",borderRadius:"5px",color:"white"}}>
+                style={{backgroundColor:"#f06292",
+                padding:"10px",
+                marginTop:"5px",
+                borderRadius:"5px",
+                color:"white"}}>
+
                 Process Status
               </button>
             </article>

@@ -29,6 +29,15 @@ const columns: Column<DataType>[] = [
   {
     Header: "Status",
     accessor: "status",
+    Cell: ({ value }) => {
+      let color = "";
+
+      if (value === "Processing") color ="rgb(0,198,202)";
+      else if (value === "Shipped") color = "hsl(110,80%,50%)";
+      else if (value === "Delivered") color = "rgb(255, 140, 0)";
+
+      return <span style={{ color }}>{value}</span>;
+    },
   },
 ];
 

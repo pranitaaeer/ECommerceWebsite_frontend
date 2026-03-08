@@ -2,6 +2,8 @@ import { FaExpandAlt, FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { CartItem } from "../types/types";
 import { transformImage } from "../utils/features";
+import { RootState } from "../redux/store";
+import { useSelector } from "react-redux";
 
 type ProductsProps = {
   productId: string;
@@ -23,7 +25,8 @@ const ProductCard = ({
   stock,
   handler,
 }: ProductsProps) => {
-  console.log(ProductImage,ProductName);
+const { user } = useSelector((state: RootState) => state.userReducer);
+
   return (
     <div className="product-card">
       <img src={transformImage(ProductImage?.[0]?.url, 400)} alt={ProductName} />
@@ -32,7 +35,8 @@ const ProductCard = ({
       <span>₹{price}</span>
 
       <div>
-        <button
+        {user?.role === "user" &&  (
+          <button
           onClick={() =>
             handler({
               productId,
@@ -44,8 +48,11 @@ const ProductCard = ({
             })
           }
         >
+          
           <FaPlus />
         </button>
+        )}
+        
 
         <Link to={`/product/${productId}`}>
           <FaExpandAlt />
