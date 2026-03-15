@@ -37,6 +37,7 @@ const TransactionManagement = () => {
   const params = useParams();
   const navigate = useNavigate();
   const { isLoading, data, isError } = useOrderDetailsQuery(params.id!);
+  console.log("order details:", data?.order);
   const {
     shippingInfo: { address, city, state, country, pinCode },
     orderItems,
@@ -49,6 +50,7 @@ const TransactionManagement = () => {
     shippingCharges,
   } = data?.order || defaultData;
 
+  console.log("orderitems",orderItems)
   const [updateOrder] = useUpdateOrderMutation();
   const [deleteOrder] = useDeleteOrderMutation();
 
@@ -86,10 +88,11 @@ const TransactionManagement = () => {
               <h2>Order Items</h2>
               
               {orderItems.map((i) => (
+               
                 <ProductCard
                   key={i._id}
                   ProductName={i.ProductName}
-                  ProductImage={i.ProductImage || ""}
+                  ProductImage={Array.isArray(i.ProductImage) ? i.ProductImage[0] : i.ProductImage}
                   productId={i.productId}
                   _id={i._id}
                   quantity={i.quantity}
@@ -105,20 +108,21 @@ const TransactionManagement = () => {
                 <FaTrash />
               </button>
               <h1>Order Info</h1>
-              <h5>User Info</h5>
+              <br />
+              <h5><b>User Info</b></h5>
               <p>Name: {username}</p>
               <p>
                 Address:{" "}
                 {`${address}, ${city}, ${state}, ${country} ${pinCode}`}
-              </p>
+              </p> <br /><br />
               <h5>Amount Info</h5>
               <p>Subtotal: {subtotal}</p>
               <p>Shipping Charges: {shippingCharges}</p>
               <p>Tax: {tax}</p>
               <p>Discount: {discount}</p>
-              <p>Total: {total}</p>
+              <p>Total: {total}</p><br /><br />
 
-              <h5>Status Info</h5>
+              <h5>Status Info</h5> 
               <p>
                 Status:{" "}
                 <span
@@ -133,7 +137,8 @@ const TransactionManagement = () => {
                 >
                   {status}
                 </span>
-              </p>
+              </p><br />
+              
               <button className="shipping-btn" onClick={updateHandler}
                 style={{backgroundColor:"#f06292",
                 padding:"10px",
@@ -157,8 +162,10 @@ const ProductCard = ({
   price,
   quantity,
   productId,
+
 }: OrderItem) => (
   <div className="transaction-product-card">
+    
     <img src={transformImage(ProductImage)} alt={ProductName} />
     <Link to={`/product/${productId}`}>{ProductName}</Link>
     <span>

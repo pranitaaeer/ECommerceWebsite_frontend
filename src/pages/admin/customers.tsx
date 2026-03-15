@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { Column } from "react-table";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import TableHOC from "../../components/admin/TableHOC";
+import avatar from "../../assets/images/avatar.webp"
 import { Skeleton } from "../../components/loader";
 import {
   useAllUsersQuery,
@@ -78,7 +79,7 @@ const Customers = () => {
               style={{
                 borderRadius: "50%",
               }}
-              src={i.Avatar}
+              src={i.Avatar || avatar}
               alt={i.username}
             />
           ),

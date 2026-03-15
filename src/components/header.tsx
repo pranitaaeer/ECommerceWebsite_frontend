@@ -12,13 +12,13 @@ import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
 import toast from "react-hot-toast";
 import { IoSearchSharp } from "react-icons/io5";
+import avatar from "../assets/images/avatar.webp"
 interface PropsType {
   user: User | null;
 }
 
 const Header = ({ user }: PropsType) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  console.log("user Avatar:",user?.Avatar || "avatar nhi hai")
   const logoutHandler = async () => {
     try {
       await signOut(auth);
@@ -54,7 +54,7 @@ const Header = ({ user }: PropsType) => {
       {user?._id ? (
         <>
           <button onClick={() => setIsOpen((prev) => !prev)}>            
-            {user?(<img src={user?.Avatar} className="avatar" />):
+            {user?(<img src={user?.Avatar || avatar} className="avatar"  loading="eager" />):
             (<FaUser style={{ color: "white" }} />)}
           </button>
           <dialog open={isOpen} >

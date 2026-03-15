@@ -34,7 +34,7 @@ const ProductDetails = () => {
   const reviewsResponse = useAllReviewsOfProductsQuery(params.id!);
   const [carouselOpen, setCarouselOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
-
+console.log("reviw",reviewsResponse.data?.reviews)
   const [reviewComment, setReviewComment] = useState("");
   const reviewDialogRef = useRef<HTMLDialogElement>(null);
   const [reviewSubmitLoading, setReviewSubmitLoading] = useState(false);
@@ -247,7 +247,7 @@ const ReviewCard = ({
     <p>{review.comment}</p>
     <div>
       <img src={review.user.Avatar} alt="User" />
-      <small>{review.user.username}</small>
+      <small style={{color:"black"}}>{review.user.username}</small>
     </div>
     {userId === review.user._id && (
       <button onClick={() => handleDeleteReview(review._id)}>
