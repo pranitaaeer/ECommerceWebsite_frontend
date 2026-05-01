@@ -142,7 +142,7 @@ const App = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
-      <Chatbot />
+      {user?.role==="user" && <Chatbot />}
       <Footer />
       <Toaster position="bottom-right" toastOptions={
        {
